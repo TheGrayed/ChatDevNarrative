@@ -17,5 +17,6 @@ COPY . .
 # Expose the port for online_log/app.py
 EXPOSE 8000
 
-ENTRYPOINT ["/usr/local/bin/python3"]
-CMD ["online_log/app.py"]
+ARG DEFAULT_CMD=
+ENV COMMAND=${DEFAULT_CMD:-/bin/bash}
+CMD ${COMMAND}
