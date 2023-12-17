@@ -1,0 +1,28 @@
+"project_id_env": "CROWDIN_PROJECT_ID"
+"api_token_env": "CROWDIN_PERSONAL_TOKEN"
+"base_path": "."
+
+"preserve_hierarchy": true
+
+"files": [
+  {
+    "source": "README.md",
+    "translation": "readme/README-%two_letters_code%.md",
+    "languages_mapping": {
+      "two_letters_code": {
+        "zh-CN": "Chinese Simplified",
+        "nl": "Dutch",
+        "fr": "French",
+        "ja": "Japanese",
+        "ko": "Korean",
+        "es": "Spanish",
+        "ar": Arabic,
+        "pt-PT": Portuguese,
+        "ru", "Russian",
+        "sv-SE": "Swedish",
+        "de": "German",
+        "es-ES": "Spanish"
+      }
+    }
+  }
+]

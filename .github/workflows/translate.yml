@@ -1,0 +1,90 @@
+name: Translate Readme
+
+on: # This workflow triggers on pushes and PRs to the main branch, specifically affecting the README.md
+  push:
+    branches: [ main ]
+    paths:
+      - 'README.md'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'README.md'
+  workflow_dispatch: # Also provides a manual trigger option
+
+jobs:
+  Translate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout # Fetches the current repo's content
+        uses: actions/checkout@v3 
+
+      - name: Upload to Crowdin # Uploads any changes in specified files to Crowdin
+        uses: crowdin/github-action@v1
+        with:
+          command: 'upload'
+          upload_sources: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CROWDIN_PROJECT_ID: ${{ secrets.CROWDIN_PROJECT_ID }}
+          CROWDIN_PERSONAL_TOKEN: ${{ secrets.CROWDIN_PERSONAL_TOKEN }}
+
+      - name: Apply Machine Translation # Applies machine translation to the new content in various languages
+        uses: crowdin/github-action@v1
+        with:
+          command: 'pre-translate'
+          command_args: '-l zh-CN -l nl -l fr -l ja -l ar -l pt-PT -l ru -l sv-SE -l de -l es-ES --method mt --engine-id 409836'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CROWDIN_PROJECT_ID: ${{ secrets.CROWDIN_PROJECT_ID }}
+          CROWDIN_PERSONAL_TOKEN: ${{ secrets.CROWDIN_PERSONAL_TOKEN }}
+
+      - name: Download from Crowdin # Downloads the translated files from Crowdin
+        uses: crowdin/github-action@v1
+        with:
+          download_translations: true
+          localization_branch_name: l10n_crowdin_translations
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CROWDIN_PROJECT_ID: ${{ secrets.CROWDIN_PROJECT_ID }}
+          CROWDIN_PERSONAL_TOKEN: ${{ secrets.CROWDIN_PERSONAL_TOKEN }}
+
+      - name: Set Git Identity  # This sets the identity for the git user to clearly indicate that changes are made by the GitHub Action.
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+
+      - name: Adjust .git permissions # Adjusting permissions ensures that the GitHub Action has the required permissions to perform subsequent operations.
+        run: sudo chmod -R 777 .git
+
+      - name: Switch to new branch # It switches to a dedicated branch for Crowdin translations. This keeps translations separate until they're ready to be merged.
+        run: |
+          git checkout l10n_crowdin_translations
+
+      - name: Update paths for translated READMEs # This step updates the paths in the translated READMEs, ensuring links and image sources point to the correct locations.
+        run: |
+          find readme -name "README-*.md" -exec sed -i 's|href="\./|href="../|g' {} \;
+          find readme -name "README-*.md" -exec sed -i 's|src="\./|src="../|g' {} \;
+          find readme -name "README-*.md" -exec sed -i "s|href='\./|href='../|g" {} \;
+          find readme -name "README-*.md" -exec sed -i "s|src='\./|src='../|g" {} \;
+          
+      - name: Commit changes # After updating paths, it commits and pushes the changes to the branch designated for translations.
+        run: |
+          git add -A
+          git commit -m "Update paths in translated READMEs"
+          git push origin l10n_crowdin_translations
+
+      - name: Create PR with new translations # The final step in the process is to create a Pull Request with the new translations. Once reviewed and approved, the translations can be merged into the main branch.
+        uses: crowdin/github-action@v1
+        with:
+          create_pull_request: true
+          pull_request_title: 'New Crowdin Translations'
+          pull_request_body: 'New Crowdin translations by [Crowdin GH Action](https://github.com/crowdin/github-action)'
+          pull_request_base_branch_name: 'main'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CROWDIN_PROJECT_ID: ${{ secrets.CROWDIN_PROJECT_ID }}
+          CROWDIN_PERSONAL_TOKEN: ${{ secrets.CROWDIN_PERSONAL_TOKEN }}
