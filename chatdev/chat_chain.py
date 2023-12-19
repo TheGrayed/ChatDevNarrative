@@ -5,6 +5,7 @@ import os
 import shutil
 import time
 from datetime import datetime
+from typing import Union
 
 from camel.agents import RolePlaying
 from camel.configs import ChatGPTConfig
@@ -14,21 +15,31 @@ from chatdev.statistics import get_info
 from chatdev.utils import log_visualize, now
 
 
-def check_bool(s):
-    return s.lower() == "true"
-
+def check_bool(s: Union[str, bool]) -> bool:
+    """ Normalizes a string or bool to a bool value.
+    String must be either "True" or "False" (case insensitive).
+    """
+    if isinstance(s, bool):
+        return s
+    else:
+        if s.lower() == "true":
+            return True
+        elif s.lower() == "false":
+            return False
+        else:
+            raise ValueError(f"Cannot convert '{s}' in config to bool")
 
 class ChatChain:
 
     def __init__(self,
-                 config_path: str = None,
-                 config_phase_path: str = None,
-                 config_role_path: str = None,
-                 task_prompt: str = None,
-                 project_name: str = None,
-                 org_name: str = None,
+                 config_path: str,
+                 config_phase_path: str,
+                 config_role_path: str,
+                 task_prompt: str,
+                 project_name: Union[str, None] = None,
+                 org_name: Union[str, None] = None,
                  model_type: ModelType = ModelType.GPT_3_5_TURBO,
-                 code_path: str = None) -> None:
+                 code_path: Union[str, None] = None):
         """
 
         Args:
@@ -38,6 +49,8 @@ class ChatChain:
             task_prompt: the user input prompt for software
             project_name: the user input name for software
             org_name: the organization name of the human user
+            model_type: the model type for chatbot
+            code_path: the path to the code files, if working incrementally
         """
 
         # load config file
@@ -70,6 +83,11 @@ class ChatChain:
                                              incremental_develop=check_bool(self.config["incremental_develop"]))
         self.chat_env = ChatEnv(self.chat_env_config)
 
+        if not check_bool(self.config["incremental_develop"]):
+            if self.code_path:
+                # TODO: in this case, the code_path is used as the target (instead of the WareHouse directory)
+                raise RuntimeError("code_path is given, but Phase Config specifies incremental_develop=False. code_path will be ignored.")
+
         # the user input prompt will be self-improved (if set "self_improve": "True" in ChatChainConfig.json)
         # the self-improvement is done in self.preprocess
         self.task_prompt_raw = task_prompt
@@ -81,7 +99,8 @@ class ChatChain:
             self.role_prompts[role] = "\n".join(self.config_role[role])
 
         # init log
-        self.start_time, self.log_filepath = self.get_logfilepath()
+        self.start_time: str = now()
+        self.log_filepath = self.get_logfilepath(self.start_time)
 
         # init SimplePhase instances
         # import all used phases in PhaseConfig.json from chatdev.phase
@@ -162,23 +181,15 @@ class ChatChain:
         for phase_item in self.chain:
             self.execute_step(phase_item)
 
-    def get_logfilepath(self):
+    def get_logfilepath(self, start_time: str) -> str:
         """
-        get the log path (under the software path)
-        Returns:
-            start_time: time for starting making the software
-            log_filepath: path to the log
-
+        Returns log_filepath as a str path to the log (under the project's path).
         """
-        start_time = now()
         filepath = os.path.dirname(__file__)
-        # root = "/".join(filepath.split("/")[:-1])
         root = os.path.dirname(filepath)
-        # directory = root + "/WareHouse/"
         directory = os.path.join(root, "WareHouse")
-        log_filepath = os.path.join(directory,
-                                    "{}.log".format("_".join([self.project_name, self.org_name, start_time])))
-        return start_time, log_filepath
+        log_filepath = os.path.join(directory, f"{self.project_name}_{self.org_name}_{start_time}.log")
+        return log_filepath
 
     def pre_processing(self):
         """
@@ -195,9 +206,9 @@ class ChatChain:
                 # logs with error trials are left in WareHouse/
                 if os.path.isfile(file_path) and not filename.endswith(".py") and not filename.endswith(".log"):
                     os.remove(file_path)
-                    print("{} Removed.".format(file_path))
+                    print(f"{file_path} Removed.")
 
-        software_path = os.path.join(directory, "_".join([self.project_name, self.org_name, self.start_time]))
+        software_path = os.path.join(directory, f"{self.project_name}_{self.org_name}_{self.start_time}")
         self.chat_env.set_directory(software_path)
 
         # copy config files to software path
@@ -207,6 +218,9 @@ class ChatChain:
 
         # copy code files to software path in incremental_develop mode
         if check_bool(self.config["incremental_develop"]):
+            if not self.code_path:
+                raise RuntimeError("code_path is not given, but working in incremental_develop mode.")
+
             for root, dirs, files in os.walk(self.code_path):
                 relative_path = os.path.relpath(root, self.code_path)
                 target_dir = os.path.join(software_path, 'base', relative_path)
@@ -218,7 +232,7 @@ class ChatChain:
             self.chat_env._load_from_hardware(os.path.join(software_path, 'base'))
 
         # write task prompt to software
-        with open(os.path.join(software_path, self.project_name + ".prompt"), "w") as f:
+        with open(os.path.join(software_path, f"{self.project_name}.prompt"), "w") as f:
             f.write(self.task_prompt_raw)
 
         preprocess_msg = "**[Preprocessing]**\n\n"
@@ -306,7 +320,7 @@ class ChatChain:
         time.sleep(1)
 
         shutil.move(self.log_filepath,
-                    os.path.join(root + "/WareHouse", "_".join([self.project_name, self.org_name, self.start_time]),
+                    os.path.join(root, "WareHouse", f"{self.project_name}_{self.org_name}_{self.start_time}",
                                  os.path.basename(self.log_filepath)))
 
     # @staticmethod

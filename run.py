@@ -15,6 +15,7 @@ import argparse
 import logging
 import os
 import sys
+from typing import Tuple, List
 
 from camel.typing import ModelType
 
@@ -24,15 +25,16 @@ sys.path.append(root)
 from chatdev.chat_chain import ChatChain
 
 
-def get_config(company):
+def get_config(company: str) -> Tuple[str, str, str]:
     """
-    return configuration json files for ChatChain
-    user can customize only parts of configuration json files, other files will be left for default
+    Returns configuration JSON files for ChatChain.
+    User can modify certain configuration JSON files, and the Default will be used for the other files.
+    
     Args:
-        company: customized configuration name under CompanyConfig/
+        company: customized configuration name (subdir name in CompanyConfig/)
 
     Returns:
-        path to three configuration jsons: [config_path, config_phase_path, config_role_path]
+        tuple of str paths to three configuration JSON filess: [config_path, config_phase_path, config_role_path]
     """
     config_dir = os.path.join(root, "CompanyConfig", company)
     default_config_dir = os.path.join(root, "CompanyConfig", "Default")
@@ -43,7 +45,7 @@ def get_config(company):
         "RoleConfig.json"
     ]
 
-    config_paths = []
+    config_paths: List[str] = []
 
     for config_file in config_files:
         company_config_path = os.path.join(config_dir, config_file)
@@ -51,25 +53,27 @@ def get_config(company):
 
         if os.path.exists(company_config_path):
             config_paths.append(company_config_path)
-        else:
+        elif os.path.exists(default_config_path):
             config_paths.append(default_config_path)
-
-    return tuple(config_paths)
+        else:
+            raise FileNotFoundError(f"Cannot find {config_file} in config_dir={config_dir} nor default_config_dir={default_config_dir}")
+    
+    return (config_paths[0], config_paths[1], config_paths[2])
 
 
 parser = argparse.ArgumentParser(description='argparse')
 parser.add_argument('--config', type=str, default="Default",
-                    help="Name of config, which is used to load configuration under CompanyConfig/")
+                    help="Name of config (subdir in  CompanyConfig/)")
 parser.add_argument('--org', type=str, default="DefaultOrganization",
-                    help="Name of organization, your software will be generated in WareHouse/name_org_timestamp")
+                    help="Name of organization (your software will be generated in WareHouse/name_org_timestamp)")
 parser.add_argument('--task', type=str, default="Develop a basic Gomoku game.",
                     help="Prompt of software")
 parser.add_argument('--name', type=str, default="Gomoku",
-                    help="Name of software, your software will be generated in WareHouse/name_org_timestamp")
-parser.add_argument('--model', type=str, default="GPT_3_5_TURBO",
+                    help="Name of software (your software will be generated in WareHouse/name_org_timestamp)")
+parser.add_argument('--model', type=str, default="GPT_3_5_TURBO", choices=['GPT_3_5_TURBO', 'GPT_4', 'GPT_4_32K'],
                     help="GPT Model, choose from {'GPT_3_5_TURBO','GPT_4','GPT_4_32K'}")
-parser.add_argument('--path', type=str, default="",
-                    help="Your file directory, ChatDev will build upon your software in the Incremental mode")
+parser.add_argument('--path', type=str, default=None,
+                    help="Your file directory. If given, ChatDev will build upon your software in the Incremental mode.")
 args = parser.parse_args()
 
 # Start ChatDev
