@@ -14,7 +14,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the rest of the application code
 COPY . .
 
-# Expose the port for online_log/app.py
+# Expose the port for visualizer/app.py
 EXPOSE 8000
 
 ARG DEFAULT_CMD=
