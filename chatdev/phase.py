@@ -309,7 +309,62 @@ class Phase(ABC):
         return chat_env
 
 
-class DemandAnalysis(Phase):
+class StoryIdea(Phase):
+    def __init__(self, **kwargs):
+        print("StoryIdea phase created")
+        super().__init__(**kwargs)
+
+    def update_phase_env(self, chat_env):
+        self.phase_env.update({"task": chat_env.env_dict['task_prompt']})
+
+    def update_chat_env(self, chat_env) -> ChatEnv:
+        if len(self.seminar_conclusion) > 0:
+            chat_env.env_dict['story_idea'] = self.seminar_conclusion.split("<INFO>")[-1].strip()
+        return chat_env
+
+class WorldBuilding(Phase):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+    def update_phase_env(self, chat_env):
+        self.phase_env.update({"task": chat_env.env_dict['task_prompt'],
+                               "story_idea": chat_env.env_dict['story_idea']})
+
+    def update_chat_env(self, chat_env) -> ChatEnv:
+        if len(self.seminar_conclusion) > 0:
+            chat_env.env_dict['world_description'] = self.seminar_conclusion.split("<INFO>")[-1].strip()
+        return chat_env
+
+class CharacterDesign(Phase):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+    def update_phase_env(self, chat_env):
+        self.phase_env.update({"task": chat_env.env_dict['task_prompt'],
+                               "story_idea": chat_env.env_dict['story_idea'],
+                               "world_description": chat_env.env_dict['world_description']})
+
+    def update_chat_env(self, chat_env) -> ChatEnv:
+        if len(self.seminar_conclusion) > 0:
+            chat_env.env_dict['character_design'] = self.seminar_conclusion.split("<INFO>")[-1].strip()
+        return chat_env
+    
+class StoryDraft(Phase):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+    def update_phase_env(self, chat_env):
+        self.phase_env.update({"task": chat_env.env_dict['task_prompt'],
+                               "story idea": chat_env.env_dict['story_idea'],
+                               "world_description": chat_env.env_dict['world_description'],
+                               "character_design": chat_env.env_dict['character_design']})
+
+    def update_chat_env(self, chat_env) -> ChatEnv:
+        if len(self.seminar_conclusion) > 0:
+            chat_env.env_dict['story_draft'] = self.seminar_conclusion.split("<INFO>")[-1].strip()
+        return chat_env
+
+class DeprecatedDemandAnalysis(Phase):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -321,8 +376,7 @@ class DemandAnalysis(Phase):
             chat_env.env_dict['modality'] = self.seminar_conclusion.split("<INFO>")[-1].lower().replace(".", "").strip()
         return chat_env
 
-
-class LanguageChoose(Phase):
+class DeprecatedLanguageChoose(Phase):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -342,7 +396,7 @@ class LanguageChoose(Phase):
         return chat_env
 
 
-class Coding(Phase):
+class DeprecatedCoding(Phase):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -366,7 +420,7 @@ class Coding(Phase):
         return chat_env
 
 
-class ArtDesign(Phase):
+class DeprecatedArtDesign(Phase):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -383,7 +437,7 @@ class ArtDesign(Phase):
         return chat_env
 
 
-class ArtIntegration(Phase):
+class DeprecatedArtIntegration(Phase):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -404,7 +458,7 @@ class ArtIntegration(Phase):
         return chat_env
 
 
-class CodeComplete(Phase):
+class DeprecatedCodeComplete(Phase):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -435,7 +489,7 @@ class CodeComplete(Phase):
         return chat_env
 
 
-class CodeReviewComment(Phase):
+class DeprecatedCodeReviewComment(Phase):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -453,7 +507,7 @@ class CodeReviewComment(Phase):
         return chat_env
 
 
-class CodeReviewModification(Phase):
+class DeprecatedCodeReviewModification(Phase):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -475,7 +529,7 @@ class CodeReviewModification(Phase):
         return chat_env
 
 
-class CodeReviewHuman(Phase):
+class DeprecatedCodeReviewHuman(Phase):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -539,7 +593,7 @@ class CodeReviewHuman(Phase):
         return chat_env
 
 
-class TestErrorSummary(Phase):
+class DeprecatedTestErrorSummary(Phase):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -591,7 +645,7 @@ class TestErrorSummary(Phase):
         return chat_env
 
 
-class TestModification(Phase):
+class DeprecatedTestModification(Phase):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -614,7 +668,7 @@ class TestModification(Phase):
         return chat_env
 
 
-class EnvironmentDoc(Phase):
+class DeprecatedEnvironmentDoc(Phase):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -633,7 +687,7 @@ class EnvironmentDoc(Phase):
         return chat_env
 
 
-class Manual(Phase):
+class DeprecatedManual(Phase):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 

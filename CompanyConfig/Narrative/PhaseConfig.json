@@ -4,74 +4,50 @@
     "user_role_name": "Narrative Director",
     "phase_prompt": [
 	  "ChatDev's narrative team has written stories for various industries such as movies, novels, video games, etc.",
-	  "",
-	  
-      "ChatDev has made products in the following form before:",
-      "Image: can present information in line chart, bar chart, flow chart, cloud chart, Gantt chart, etc.",
-      "Document: can present information via .docx files.",
-      "PowerPoint: can present information via .pptx files.",
-      "Excel: can present information via .xlsx files.",
-      "PDF: can present information via .pdf files.",
-      "Website: can present personal resume, tutorial, products, or ideas, via .html files.",
-      "Application: can implement visualized game, software, tool, etc, via python.",
-      "Dashboard: can display a panel visualizing real-time information.",
-      "Mind Map: can represent ideas, with related concepts arranged around a core concept.",
-      "As the {assistant_role}, to satisfy the new user's demand and the product should be realizable, you should keep discussing with me to decide which product modality do we want the product to be?",
-      "Note that we must ONLY discuss the product modality and do not discuss anything else! Once we all have expressed our opinion(s) and agree with the results of the discussion unanimously, any of us must actively terminate the discussion by replying with only one line, which starts with a single word <INFO>, followed by our final product modality without any other words, e.g., \"<INFO> PowerPoint\"."
+	  "We have talented writers and experts with experience in all genres of story, including action, thriller, fantasy, sci-fi, historical, drama, etc. ",
+	  "As the {assistant_role}, to satisfy the new user's demand, you should keep discussing with me to decide on a story idea in broad strokes. The idea should answer what the setting for our story is briefly, and what the most important events of the story are?",
+	  "Here is the new user's task for us: \"{task}\".",
+	  "Note that we must ONLY discuss the general idea of the story is, and do not discuss anything else! Once we all have expressed our opinion(s) and agree with the results of the discussion unanimously, any of us must actively terminate the discussion by replying with only one line, which starts with a single word <INFO>, followed by our final story idea without any other words, e.g., \"<INFO> The story takes place in 13th century Europe. The prince of kingdom is devastated by his father's death and his mother's quick remarriage to his uncle, who is now king. The ghost of His father reveals that his uncle murdered him, prompting the prince to seek revenge. The prince's quest for vengeance leads to a spiral of deceit, internal conflict, and accidental killings. The tragedy culminates in a deadly showdown, resulting in the deaths of himself, his uncle, his mother, and others, leaving the throne in chaos.\"."
     ]
   },
   "WorldBuilding": {
-    "assistant_role_name": "Main Writer",
+    "assistant_role_name": "Narrative Director",
     "user_role_name": "World Builder",
     "phase_prompt": [
-      "ChatDev has made products in the following form before:",
-      "Image: can present information in line chart, bar chart, flow chart, cloud chart, Gantt chart, etc.",
-      "Document: can present information via .docx files.",
-      "PowerPoint: can present information via .pptx files.",
-      "Excel: can present information via .xlsx files.",
-      "PDF: can present information via .pdf files.",
-      "Website: can present personal resume, tutorial, products, or ideas, via .html files.",
-      "Application: can implement visualized game, software, tool, etc, via python.",
-      "Dashboard: can display a panel visualizing real-time information.",
-      "Mind Map: can represent ideas, with related concepts arranged around a core concept.",
-      "As the {assistant_role}, to satisfy the new user's demand and the product should be realizable, you should keep discussing with me to decide which product modality do we want the product to be?",
-      "Note that we must ONLY discuss the product modality and do not discuss anything else! Once we all have expressed our opinion(s) and agree with the results of the discussion unanimously, any of us must actively terminate the discussion by replying with only one line, which starts with a single word <INFO>, followed by our final product modality without any other words, e.g., \"<INFO> PowerPoint\"."
+      "According to the new user's task and our story idea listed below: ",
+      "Task: \"{task}\".",
+      "Story Idea: \"{story_idea}\".",
+      "We have to conceptualize the world that our story would take place in. Consider various elements that exist in the given idea, and what kind of universe can best host this narrative. These elements could be physical laws specific to that universe, supernatural phenomena, myths, history, geography, people, factions, or others.",
+	  "As the {assistant_role}, to satisfy the new user's demand, you should keep discussing with me to decide on various elements of the story setting and universe.",
+	  "Note that we must ONLY discuss world elements relevant to the idea, and do not discuss anything else! Also we should avoid going in depth too much, briefly addressing each relevant prerequisite of the story idea. The final output of this phase should be roughly one page. Once we all have expressed our opinion(s) and agree with the results of the discussion unanimously, any of us must actively terminate the discussion by replying with the result of our world building, which starts with a single word <INFO>, followed by our final one page of setting description."
+	  
     ]
   },
   "CharacterDesign": {
-    "assistant_role_name": "Main Writer",
+    "assistant_role_name": "Narrative Director",
     "user_role_name": "Character Designer",
     "phase_prompt": [
-      "ChatDev has made products in the following form before:",
-      "Image: can present information in line chart, bar chart, flow chart, cloud chart, Gantt chart, etc.",
-      "Document: can present information via .docx files.",
-      "PowerPoint: can present information via .pptx files.",
-      "Excel: can present information via .xlsx files.",
-      "PDF: can present information via .pdf files.",
-      "Website: can present personal resume, tutorial, products, or ideas, via .html files.",
-      "Application: can implement visualized game, software, tool, etc, via python.",
-      "Dashboard: can display a panel visualizing real-time information.",
-      "Mind Map: can represent ideas, with related concepts arranged around a core concept.",
-      "As the {assistant_role}, to satisfy the new user's demand and the product should be realizable, you should keep discussing with me to decide which product modality do we want the product to be?",
-      "Note that we must ONLY discuss the product modality and do not discuss anything else! Once we all have expressed our opinion(s) and agree with the results of the discussion unanimously, any of us must actively terminate the discussion by replying with only one line, which starts with a single word <INFO>, followed by our final product modality without any other words, e.g., \"<INFO> PowerPoint\"."
+      "According to the new user's task, our story idea plus world description are listed below: ",
+      "Task: \"{task}\".",
+      "Story Idea: \"{story_idea}\".",
+	  "World Description: \"{world_description}\".",
+      "Now we must flesh out the characters in the story. This may include their personality, traits, relationships, strengths and weaknesses, backstory, motivations, and etc.",
+	  "As the {assistant_role}, to satisfy the new user's demand, you should keep discussing with me to decide on the most important characteristics that play a role in our story.",
+	  "Note that we must ONLY discuss characteristics relevant to the story idea, and do not discuss anything else! Also we should avoid going in depth too much, briefly describing each character to the extent that their actions make sense and are believable. The final output of this phase should be roughly one page in total, each character described in about one paragraph. Once we all have expressed our opinion(s) and agree with the results of the discussion unanimously, any of us must actively terminate the discussion by replying with the result of our character designs, which starts with a single word <INFO>, followed by our final one page of character descriptions."
     ]
   },
   "StoryDraft": {
     "assistant_role_name": "Narrative Director",
     "user_role_name": "Main Writer",
     "phase_prompt": [
-      "ChatDev has made products in the following form before:",
-      "Image: can present information in line chart, bar chart, flow chart, cloud chart, Gantt chart, etc.",
-      "Document: can present information via .docx files.",
-      "PowerPoint: can present information via .pptx files.",
-      "Excel: can present information via .xlsx files.",
-      "PDF: can present information via .pdf files.",
-      "Website: can present personal resume, tutorial, products, or ideas, via .html files.",
-      "Application: can implement visualized game, software, tool, etc, via python.",
-      "Dashboard: can display a panel visualizing real-time information.",
-      "Mind Map: can represent ideas, with related concepts arranged around a core concept.",
-      "As the {assistant_role}, to satisfy the new user's demand and the product should be realizable, you should keep discussing with me to decide which product modality do we want the product to be?",
-      "Note that we must ONLY discuss the product modality and do not discuss anything else! Once we all have expressed our opinion(s) and agree with the results of the discussion unanimously, any of us must actively terminate the discussion by replying with only one line, which starts with a single word <INFO>, followed by our final product modality without any other words, e.g., \"<INFO> PowerPoint\"."
+      "According to the new user's task, our story idea, world description and character descriptions are listed below: ",
+      "Task: \"{task}\".",
+      "Story Idea: \"{story_idea}\".",
+	  "World Description: \"{world_description}\".",
+	  "Character Descriptions: \"{character_descriptions}\".",
+	  "Now we have to create the first draft of the story. We elaborate the story idea, extending it to a one page synopsis, while taking the proposed descriptions of world and characters into account.",
+      "As the {assistant_role}, to satisfy the new user's demand, you should keep discussing with me to decide on the details of a story synopsis based on given story idea. This synopsis should be roughly one page.",
+      "Note that we must ONLY discuss the story synopsis and do not discuss anything else! Once we all have expressed our opinion(s) and agree with the results of the discussion unanimously, any of us must actively terminate the discussion by replying with the story resulting from our discussions, which starts with a single word <INFO>, followed by our final one page of story synopsis."
     ]
   },
   "CoherenceAndConsistencyControl": {
